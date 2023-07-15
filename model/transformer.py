@@ -5,6 +5,7 @@ import torch.nn.functional as F
 import math
 
 max_seq_length = 100
+total_word_num = 100
 
 
 class MultiHeadAttention(nn.Module):
@@ -128,10 +129,10 @@ class Transformer(nn.Module):
         self.max_encoder_seq_length = max_encoder_seq_length
         self.max_decoder_seq_length = max_decoder_seq_length
 
-        self.input_data_embed = nn.Embedding(max_seq_length, self.hidden_dim)
+        self.input_data_embed = nn.Embedding(total_word_num, self.hidden_dim)
         self.Encoders = [Encoder(dim_num=hidden_dim) for _ in range(encoder_num)]
 
-        self.output_data_embed = nn.Embedding(max_seq_length, self.hidden_dim)
+        self.output_data_embed = nn.Embedding(total_word_num, self.hidden_dim)
         self.Decoders = [Decoder(dim_num=hidden_dim) for _ in range(decoder_num)]
 
         self.last_linear_layer = nn.Linear(self.hidden_dim, max_seq_length)
@@ -161,7 +162,7 @@ class Transformer(nn.Module):
             v = encoder_output
 
         output_embed = self.output_data_embed(output)
-        output += self.position_encoding(self.max_decoder_seq_length)
+        output_embed += self.position_encoding(self.max_decoder_seq_length)
         output_embed = output_embed.masked_fill(mask.unsqueeze(-1), 0)
         d_q, d_k, d_v = output_embed, output_embed, output_embed
 
